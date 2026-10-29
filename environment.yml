@@ -1,0 +1,10 @@
+name: wavetag
+channels:
+  - conda-forge
+dependencies:
+  - python=3.11
+  - pip
+  - ffmpeg          # MP3/AAC/Opus 견고성 공격에 필요
+  - libsndfile
+  - pip:
+      - -r requirements.txt

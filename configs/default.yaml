@@ -1,0 +1,94 @@
+# =====================================================================
+# WaveTag 평가 프레임 설정
+#  ★TBD★ 표시 = 실험으로 확정할 미지수. 아래 값은 '코드가 돌아가게 하는 임시값'이며
+#  논문 참고 기준 또는 개발 중 임시 가정이다. 확정 전에는 결과 해석에 확정값처럼 사용하지 말 것.
+# =====================================================================
+sr: 16000
+seed: 0
+
+# ---- 검증 합격 기준 (문서 ④) -------------------------------------------------
+# 논문 Sec.III-B 의 초기 참고 기준(화자유사도<0.3, PESQ>1.99, SNR>6dB). 문서상 전부 TBD.
+pass_criteria:
+  sim_max: 0.3        # ★TBD★ 보호 후 화자 유사도(aux 모델 기준)가 이 값 미만이어야 보호 성공
+  pesq_min: 1.99      # ★TBD★ (pesq_mode 와 반드시 같은 모드로 측정)
+  snr_min_db: 6.0     # ★TBD★
+  pesq_mode: wb       # wb(광대역, 16kHz) | nb(협대역)
+
+# ---- 보안강도 3단계 (보통/강함/매우강함) ---------------------------------------
+# 강도가 높을수록 화자 유사도 목표는 낮고(보호↑) 워터마크 진폭은 큼(음질↓).  수치 전부 ★TBD★(임시)
+strength_levels: [normal, strong, very_strong]
+strength:
+  normal:      {target_sim: 0.50, wm_amp_ratio: 0.02}
+  strong:      {target_sim: 0.30, wm_amp_ratio: 0.03}
+  very_strong: {target_sim: 0.15, wm_amp_ratio: 0.05}
+
+# ---- 음성 -------------------------------------------------------------------
+audio:
+  max_seconds: 5.0            # 평가 시 클립 앞부분 길이 제한 (ACO 연산량 때문)
+  aux_encoder: xvector        # 보호 생성 중 유사도 계산용 (보조 모델)
+  eval_encoders: [ecapa]      # 평가용 (생성에 쓰지 않은 모델)  <- 블랙박스 평가
+  wm_mode: plus               # plus(Volto+, 시간영역) | star(Volto*, 생성모델; 체크포인트 필요)
+  removal:                    # RemovalConfig 의 필드와 1:1 (volto_removal.py 참고)
+    id_threshold: 0.6
+    bisect_init_ratio: 0.015625
+    bisect_tol_ratio: 0.001
+    bisect_max_iter: 14
+    pesq_floor: null
+    target_sim: 0.3           # 실제 값은 strength 로 덮어씀
+    aco_ants: 5
+    aco_iters: 3
+    aco_max_steps: 200
+    aco_top_start: 10
+    aco_max_candidates: 512
+    aco_alpha: 1.0
+    aco_beta: 1.0
+    aco_decay: 0.9
+    eff_lambda: 1.0
+    eff_phi: 1.0
+    freqs_per_step: 1         # 논문=1. 너무 느리면 2~4
+    band_hz: 20.0             # 구현 가정 A (volto_removal.py 설명 참고)
+    pesq_mode: wb
+    seed: 0
+  volto_plus:
+    slot_ms: 100.0
+    seed_base: 1234
+  volto_star:
+    ckpt: null                # 학습된 체크포인트 경로 (scripts/train_volto_star.py 결과)
+    seg_sec: 3.0
+    base: 16
+    depth: 4
+    delta_scale: 0.05         # ★TBD★
+  optout:                     # AudioOptOutConfig 와 1:1 (optout_code.py 참고)
+    band_lo_hz: 5000.0        # ★TBD★
+    band_hi_hz: 7500.0        # ★TBD★
+    samples_per_bit: 256
+    preamble_bits: 16
+    strength_db: -30.0        # ★TBD★
+    key: 20260001
+    nsym: 8
+    start_offset: 2048
+    max_shift: 2048
+    local_refine: 16
+  trigger_detect:
+    min_peak_ratio: 8.0       # ★TBD★ Volto+ 트리거 '검출' 판정 임계 (무삽입 파일 분포로 확정)
+
+# ---- 이미지 ------------------------------------------------------------------
+image:
+  models_train: [resnet18]            # 적대적 최적화에 사용 (앙상블: 여러 개 나열)
+  models_heldout: [mobilenet_v3_large] # 최적화에 쓰지 않는 '전이 평가' 모델
+  eiaw:                               # EIAWConfig 와 1:1 (eiaw.py 참고)
+    p: 16                             # ★TBD★ (p=8 은 JPEG95 에서도 깨짐 -> 테스트로 확인됨)
+    wm_band: [2, 5]                   # ★TBD★
+    key: 20260002                     # 워터마크 디더 시드 (서비스에서는 서버 비밀)
+    p_optout: 16                      # ★TBD★
+    key_optout: 20260003
+    optout_band: [8, 10]              # ★TBD★ (wm_band 와 겹치면 안 됨)
+    nsym: 8
+    adv_steps: 40
+    adv_topk_frac: 0.01
+    adv_max_mult: 2
+    adv_extra_steps: 3
+  strength:                           # 이미지 보안강도 ★TBD★(임시)
+    normal:      {adv_steps: 15, adv_topk_frac: 0.005, adv_extra_steps: 1}
+    strong:      {adv_steps: 40, adv_topk_frac: 0.01,  adv_extra_steps: 3}
+    very_strong: {adv_steps: 80, adv_topk_frac: 0.02,  adv_extra_steps: 6}

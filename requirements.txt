@@ -1,0 +1,18 @@
+# ---- 딥러닝 (torch/torchvision/torchaudio 는 반드시 같은 인덱스에서 한 번에 설치: README 참고) ----
+torch>=2.1
+torchvision>=0.16
+torchaudio>=2.1          # 우리 코드는 직접 쓰지 않지만 SpeechBrain 이 import 한다 (버전 불일치 주의)
+speechbrain>=1.0         # 화자 임베딩 사전학습 모델(ECAPA-TDNN, x-vector)
+# ---- 신호처리/지표 ----
+numpy
+scipy
+soundfile                # wav/flac 입출력 (libsndfile 필요)
+scikit-image             # PSNR/SSIM
+pillow                   # JPEG/WebP 공격, 이미지 입출력
+pesq                     # PESQ (C 확장: 윈도우는 C++ Build Tools 필요 -> README 참고)
+pystoi                   # STOI
+reedsolo                 # Reed-Solomon 오류정정코드
+# ---- 기타 ----
+PyYAML
+pandas
+pytest
