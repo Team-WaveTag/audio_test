@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 # WaveTag 평가 프레임 & 견고성 테스트 코드
 
 WaveTag(비가청 음성 워터마킹 + 적대적 노이즈 결합) 의 **평가 프레임**과 **견고성 테스트**를 위한 코드베이스.
@@ -169,3 +170,7 @@ python scripts/train_volto_star.py --data_dir data/vox50 --out ckpt/volto_star.p
 - 함수/클래스에는 한국어 docstring, `★TBD★`·`가정`·`한계` 는 반드시 주석에 표시.
 - 새 임계값은 코드에 하드코딩하지 말고 `configs/default.yaml` 에 추가.
 - PR 전 `pytest -q` 통과. 평가 결과(`results/`)는 git 에 올리지 않고 CSV 요약만 공유.
+=======
+# audio_test
+음성 로직 내부 검증값 도출
+>>>>>>> e68ac24c3cafaef0a4dfcf12069267531b792896
